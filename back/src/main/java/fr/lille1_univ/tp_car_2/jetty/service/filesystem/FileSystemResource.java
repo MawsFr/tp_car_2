@@ -16,39 +16,62 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/files", produces=MediaType.APPLICATION_JSON_VALUE)
-public class FileSystemService {
+public class FileSystemResource {
 	
 	public static final String LIST_PATH = "/api/files/list";
-	private static final Logger log = Logger.getLogger(FileSystemService.class.getName());
-
-	public static final String ROOT_PATH = "root";
+	private static final Logger log = Logger.getLogger(FileSystemResource.class.getName());
 	
 	@Autowired
 	protected FileSystemManager manager;
 	
 	@PostConstruct
 	public void initRootPath() {
-		final File root = new File(ROOT_PATH);
-		if(!root.exists()) {
-			log.info("Création du dossier " + ROOT_PATH);
-			root.mkdir();
-		}
+		manager.init();
 	}
 
 	@GetMapping("/list")
-	public List<FileInfos> listFiles(final HttpServletRequest request) {
-		final String directory = ROOT_PATH + '/' + request.getRequestURI().replaceFirst(LIST_PATH, "");
+	public List<FileInfos> listDirectory(final HttpServletRequest request) {
+		final String directory = request.getRequestURI().replaceFirst(LIST_PATH, "");
 		final File[] files = manager.listFiles(directory);
+		// TODO : Create a Mapper
 		final List<FileInfos> infos = new ArrayList<>();
 		for (final File file : files) {
 			final FileInfos info = new FileInfos();
 			info.setName(file.getName());
 			info.setSize(file.length());
+			info.setIsDirectory(file.isDirectory());
 			// TODO : add group etc ...
 			infos.add(info);
 		}
+		log.info(infos);
 		return infos;
 		
 	}
+	
+//	@DeleteMapping
+//	public void deleteFile() {
+//		// TODO : To implement
+//	}
+//	
+//	@PostMapping
+//	public void createDirectory() {
+//		
+//	}
+//	
+//	@DeleteMapping
+//	public void deleteDirectory() {
+//		// TODO : To implement
+//	}
+//	
+//	@PostMapping
+//	public void uploadFile(final MultipartFile file) {
+//		
+//	}
+//	
+//	@GetMapping
+//	public void downloadFile() {
+//		// TODO : To implement
+//	}
+	
 
 }

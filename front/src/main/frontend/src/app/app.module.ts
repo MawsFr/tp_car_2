@@ -3,16 +3,21 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 import { AppComponent } from './app.component';
+import { FileNavigatorModule } from './filenavigator/filenavigator.module'
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule
+    HttpModule,
+    FileNavigatorModule,
+    NgbModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

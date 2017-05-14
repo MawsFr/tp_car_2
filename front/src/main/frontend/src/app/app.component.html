@@ -1,3 +1,37 @@
-<h1>
-  {{title}}
-</h1>
+<div class="container">
+    <h1 class="row">
+        {{title}}
+    </h1>
+    <h2 class="row">Dossier actuel : </h2>
+    <nav class="breadcrumb">
+        <a class="breadcrumb-item" href="#">Home</a>
+        <span class="breadcrumb-item active">{{currentPath}}</span>
+    </nav>
+    <div id="toolbar" class="row">
+        <a href="#">Créer un dossier</a>
+        <a href="#">Envoyer un fichier</a>
+        <a href="#">Télécharger la selection</a>
+        <a href="#">Supprimer la selection</a>
+    </div>
+    <div class="row">
+        <table id="files_table" class="table table-striped table-hover table-responsiv">
+            <thead class="thead-inverse">
+                <tr scope="row">
+                    <th class="select_all_checkbox"><input type="checkbox"></th>
+                    <th>Nom</th>
+                    <th>Taille</th>
+                    <th colspan=2>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr scope="row" *ngFor="let file of files">
+                    <td class="checkbox"><input type="checkbox"></td>
+                    <td class="filename"><i class="fa" [ngClass]="file.currentClasses" aria-hidden="true"></i> {{file.name}}</td>
+                    <td class="filesize">{{file.size}}</td>
+                    <td class="filesize"><a href="api/files/download/{{currentPath}}/{{file.name}}">Télécharger</a></td>
+                    <td class="filesize"><a href="api/files/delete/{{currentPath}}/{{file.name}}">Supprimer</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

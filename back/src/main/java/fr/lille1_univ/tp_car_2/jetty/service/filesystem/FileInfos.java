@@ -5,9 +5,7 @@ public class FileInfos {
 
 	protected String name;
 	protected Long size;
-	protected String owner;
-	protected String group;
-	protected String rights;
+	protected Boolean isDirectory;
 	
 	public FileInfos() {}
 
@@ -27,28 +25,21 @@ public class FileInfos {
 		this.size = l;
 	}
 
-	public String getOwner() {
-		return owner;
+	public Boolean getIsDirectory() {
+		return isDirectory;
 	}
 
-	public void setOwner(final String owner) {
-		this.owner = owner;
+	public void setIsDirectory(final Boolean isDirectory) {
+		this.isDirectory = isDirectory;
 	}
 
-	public String getGroup() {
-		return group;
+	public void setSize(final Long size) {
+		this.size = size;
 	}
 
-	public void setGroup(final String group) {
-		this.group = group;
+	@Override
+	public String toString() {
+		return "FileInfos [name=" + name + ", size=" + size + ", isDirectory=" + isDirectory + "]";
 	}
-
-	public String getRights() {
-		return rights;
-	}
-
-	public void setRights(final String rights) {
-		this.rights = rights;
-	}
-
+	
 }
