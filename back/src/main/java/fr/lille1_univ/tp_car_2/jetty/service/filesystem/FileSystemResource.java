@@ -40,6 +40,11 @@ public class FileSystemResource {
 			info.setName(file.getName());
 			info.setSize(file.length());
 			info.setIsDirectory(file.isDirectory());
+			// try {
+			// info.setPath(file.getCanonicalPath());
+			// } catch (IOException e) {
+			// e.printStackTrace();
+			// }
 			// TODO : add group etc ...
 			infos.add(info);
 		}

@@ -5,6 +5,7 @@ public class FileInfos {
 
 	protected String name;
 	protected Long size;
+	protected String path;
 	protected Boolean isDirectory;
 	
 	public FileInfos() {}
@@ -35,6 +36,14 @@ public class FileInfos {
 
 	public void setSize(final Long size) {
 		this.size = size;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 	@Override
