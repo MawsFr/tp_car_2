@@ -1,8 +1,13 @@
 package fr.lille1_univ.tp_car_2.jetty.service.filesystem;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +38,17 @@ public class FileSystemManager {
 
 	public String getRelativePath(File file) {
 		return root.toURI().relativize(file.toURI()).getPath();
+	}
+
+	public void download(final String path, OutputStream out) throws IOException {
+		final File file = new File(ROOT_PATH + '/' + path);
+		if (file.isFile()) {
+			final InputStream is = new FileInputStream(file);
+			IOUtils.copy(is, out);
+			is.close();
+		} else {
+			throw new FileNotFoundException("The path relates to a directory");
+		}
 	}
 
 }

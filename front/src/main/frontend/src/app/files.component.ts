@@ -22,7 +22,7 @@ export class FilesComponent implements OnInit {
   ngOnInit() {
     this.router.events.filter(e => e instanceof NavigationEnd)
       .forEach((event: NavigationEnd) => {
-          this.parseUrl();
+        this.parseUrl();
       });
   }
 
@@ -42,15 +42,20 @@ export class FilesComponent implements OnInit {
     }
   }
 
-  getFiles(path:string) {
+  getFiles(path: string) {
     this.fileService.listFiles(path).then(files => this.files = files);
   }
 
   go(directory: File) {
     debugger;
     if (directory.isDirectory) {
-      this.router.navigate(['/files/'+ directory.path]);
+      this.router.navigate(['/files/' + directory.path]);
     }
+  }
+
+  download(file: File) {
+    debugger;
+    this.fileService.download(file.path, file.name);
   }
 
 }
