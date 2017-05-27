@@ -29,10 +29,10 @@ public class FileSystemResource {
 		manager.init();
 	}
 
-	@GetMapping("/list")
+	@GetMapping("/list/**")
 	public List<FileInfos> listDirectory(final HttpServletRequest request) {
-		final String directory = request.getRequestURI().replaceFirst(LIST_PATH, "");
-		final File[] files = manager.listFiles(directory);
+		final String path = request.getRequestURI().replaceFirst(LIST_PATH, "");
+		final File[] files = manager.listFiles(path);
 		// TODO : Create a Mapper
 		final List<FileInfos> infos = new ArrayList<>();
 		for (final File file : files) {
@@ -40,11 +40,7 @@ public class FileSystemResource {
 			info.setName(file.getName());
 			info.setSize(file.length());
 			info.setIsDirectory(file.isDirectory());
-			// try {
-			// info.setPath(file.getCanonicalPath());
-			// } catch (IOException e) {
-			// e.printStackTrace();
-			// }
+			info.setPath(manager.getRelativePath(file));
 			// TODO : add group etc ...
 			infos.add(info);
 		}

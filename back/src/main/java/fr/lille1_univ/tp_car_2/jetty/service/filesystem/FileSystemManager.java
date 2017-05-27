@@ -11,6 +11,7 @@ public class FileSystemManager {
 	
 	public static final String ROOT_PATH = "root";
 	private static final Logger log = Logger.getLogger(FileSystemManager.class.getName());
+	protected File root;
 
 	public File[] listFiles(final String directory) {
 		final File dir = new File(ROOT_PATH + '/' + directory);
@@ -23,11 +24,15 @@ public class FileSystemManager {
 	}
 	
 	public void init() {
-		final File root = new File(ROOT_PATH);
+		root = new File(ROOT_PATH);
 		if(!root.exists()) {
 			log.info("Création du dossier " + ROOT_PATH);
 			root.mkdir();
 		}		
+	}
+
+	public String getRelativePath(File file) {
+		return root.toURI().relativize(file.toURI()).getPath();
 	}
 
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { File } from './files.component';
+import { File } from './files-browser.component';
 
 import { Headers, Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
@@ -7,15 +7,15 @@ import 'rxjs/add/operator/toPromise';
 
 @Injectable()
 export class FileService {
-  private LIST_FILE_URL = '/api/files/list';
+  private LIST_FILE_URL = '/api/files/list/';
 
   constructor(private http: Http) { }
 
-  listFiles(): Promise<File[]> {
-    return this.http.get(this.LIST_FILE_URL)
+  listFiles(path: string): Promise<File[]> {
+    return this.http.get(this.LIST_FILE_URL + path)
       .toPromise()
-      .then(response => (response.json() as File[]).map(function ({name, size, isDirectory}) {
-        return new File(name, size, isDirectory);
+      .then(response => (response.json() as File[]).map(function ({ name, size, isDirectory, path }) {
+        return new File(name, size, isDirectory, path);
       }))
       .catch(error => this.handleError);
 
