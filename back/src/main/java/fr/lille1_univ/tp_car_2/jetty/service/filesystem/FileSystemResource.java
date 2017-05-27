@@ -13,16 +13,21 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RestController
 @RequestMapping(value = "/files", produces=MediaType.APPLICATION_JSON_VALUE)
 public class FileSystemResource {
 
 	public static final String LIST_PATH = "/api/files/list/";
-	private static final Logger log = Logger.getLogger(FileSystemResource.class.getName());
 	private static final String DOWNLOAD_PATH = "/api/files/download/";
+	private static final String UPLOAD_PATH = "/api/files/upload/";
+	private static final Logger log = Logger.getLogger(FileSystemResource.class.getName());
 
 	@Autowired
 	protected FileSystemManager manager;
@@ -39,13 +44,8 @@ public class FileSystemResource {
 		// TODO : Create a Mapper
 		final List<FileInfos> infos = new ArrayList<>();
 		for (final File file : files) {
-			final FileInfos info = new FileInfos();
-			info.setName(file.getName());
-			info.setSize(file.length());
-			info.setIsDirectory(file.isDirectory());
-			info.setPath(manager.getRelativePath(file));
 			// TODO : add group etc ...
-			infos.add(info);
+			infos.add(manager.getFileInfos(file));
 		}
 		log.info(infos);
 		return infos;
@@ -83,6 +83,21 @@ public class FileSystemResource {
 		} catch (IOException e) {
 			log.error("Download error", e);
 		}
+	}
+
+	@PostMapping("/upload/**")
+	public FileInfos handleFileUpload(final HttpServletRequest request, @RequestParam("file") MultipartFile file,
+			RedirectAttributes redirectAttributes) {
+		final String path = request.getRequestURI().replaceFirst(UPLOAD_PATH, "");
+		log.error("Trying to upload" + file.getOriginalFilename());
+		try {
+			return manager.getFileInfos(manager.upload(file, path));
+
+		} catch (IOException e) {
+			log.error("Upload error", e);
+		}
+
+		return null;
 	}
 
 

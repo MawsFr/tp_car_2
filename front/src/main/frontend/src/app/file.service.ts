@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
-import { File } from './files-browser.component';
+import { Injectable, Output, EventEmitter } from '@angular/core';
+import { MyFile } from './files-browser.component';
 import * as FileSaver from 'file-saver'
 
 import { Headers, Http, ResponseContentType } from '@angular/http';
+import { FileUploader } from 'ng2-file-upload/ng2-file-upload';
 import 'rxjs/add/operator/toPromise';
 
 
@@ -10,32 +11,51 @@ import 'rxjs/add/operator/toPromise';
 export class FileService {
   private LIST_FILE_URL = '/api/files/list/';
   private DOWNLOAD_FILE_URL = '/api/files/download/';
+  private UPLOAD_FILE_URL = '/api/files/upload/';
+  @Output() onFileUploadFinish: EventEmitter<MyFile> = new EventEmitter<any>();
 
+  currentPath = '';
+
+  public uploader: FileUploader = new FileUploader({ url: this.UPLOAD_FILE_URL });
   constructor(private http: Http) { }
 
-  listFiles(path: string): Promise<File[]> {
+  listFiles(path: string): Promise<MyFile[]> {
     return this.http.get(this.LIST_FILE_URL + path)
       .toPromise()
-      .then(response => (response.json() as File[]).map(function ({ name, size, isDirectory, path }) {
-        return new File(name, size, isDirectory, path);
+      .then(response => (response.json() as MyFile[]).map(function ({ name, size, isDirectory, path }) {
+        return new MyFile(name, size, isDirectory, path);
       }))
       .catch(error => this.handleError);
 
   }
 
   download(path: string, filename: string) {
-    debugger;
-    return this.http.get(this.DOWNLOAD_FILE_URL + path, {responseType: ResponseContentType.Blob} ).toPromise()
-    .then(response => {
-      debugger;
-      var data = new Blob([response.blob()]);
-      FileSaver.saveAs(data, filename);
-    });
+    return this.http.get(this.DOWNLOAD_FILE_URL + path, { responseType: ResponseContentType.Blob }).toPromise()
+      .then(response => {
+        debugger;
+        var data = new Blob([response.blob()]);
+        FileSaver.saveAs(data, filename);
+      });
   }
 
   private handleError(error: any): Promise<any> {
     console.error('Il y\'a eu une erreur', error);
     return Promise.reject(error.message || error);
+  }
+
+  upload(files: File[]) {
+    debugger;
+    this.uploader.options.url = this.UPLOAD_FILE_URL + this.currentPath;
+    this.uploader.addToQueue(files);
+    this.uploader.uploadAll();
+    this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
+      debugger;
+      if (status === 200) {
+        let file = JSON.parse(response) as MyFile;
+        let newFile = new MyFile(file.name, file.size, file.isDirectory, file.path);
+        this.onFileUploadFinish.emit(newFile);
+      }
+    };
   }
 
 }

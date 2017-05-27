@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { OnInit } from '@angular/core';
 import { HttpModule } from '@angular/http';
 import { FileService } from './file.service';
-import { File } from './files-browser.component'
+import { MyFile } from './files-browser.component'
 
 import { ActivatedRoute, Params, Router, NavigationEnd } from '@angular/router';
 import { Location } from '@angular/common';
@@ -15,7 +15,7 @@ import 'rxjs/add/operator/filter';
   styleUrls: ['./files.component.css']
 })
 export class FilesComponent implements OnInit {
-  files: File[];
+  files: MyFile[];
   constructor(private fileService: FileService, private router: Router, private route: ActivatedRoute, private location: Location) {
   }
 
@@ -24,6 +24,9 @@ export class FilesComponent implements OnInit {
       .forEach((event: NavigationEnd) => {
         this.parseUrl();
       });
+    this.fileService.onFileUploadFinish.subscribe(file => {
+      this.addFile(file);
+    })
   }
 
   parseUrl() {
@@ -35,6 +38,7 @@ export class FilesComponent implements OnInit {
       let childRoute: ActivatedRoute = parentRoot.firstChild;
       if (childRoute && childRoute.snapshot) {
         path = childRoute.snapshot.url.map(p => p.path).join('/');
+        this.fileService.currentPath = path;
         console.log('New browser path is ', path);
       }
 
@@ -46,16 +50,21 @@ export class FilesComponent implements OnInit {
     this.fileService.listFiles(path).then(files => this.files = files);
   }
 
-  go(directory: File) {
+  go(directory: MyFile) {
     debugger;
     if (directory.isDirectory) {
       this.router.navigate(['/files/' + directory.path]);
     }
   }
 
-  download(file: File) {
+  download(file: MyFile) {
     debugger;
     this.fileService.download(file.path, file.name);
+  }
+
+  addFile(file: MyFile) {
+    this.files.push(file);
+    this.files.sort();
   }
 
 }

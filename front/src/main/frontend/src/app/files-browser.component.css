@@ -2,3 +2,11 @@ i.action,
 i.fa-folder {
     cursor: pointer;
 }
+.browse {
+    position: absolute;
+    margin-top: 3px;
+    margin-left: 3px;
+    height: 1px;
+    width: 1px;
+    z-index: -5;
+}

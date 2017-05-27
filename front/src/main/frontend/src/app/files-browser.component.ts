@@ -2,13 +2,14 @@ import { Component } from '@angular/core';
 import { OnInit } from '@angular/core';
 import { HttpModule } from '@angular/http';
 import { FileService } from './file.service';
+import * as $ from "jquery";
 
 import { ActivatedRoute, Params, Router, NavigationEnd } from '@angular/router';
 import { Location } from '@angular/common';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/filter';
 
-export class File {
+export class MyFile {
   currentClasses: {};
 
   constructor(public name: string, public size: number, public isDirectory: boolean, public path: string) {
@@ -29,11 +30,20 @@ export class File {
   styleUrls: ['./files-browser.component.css']
 })
 export class FilesBrowserComponent implements OnInit {
-  currentPath = '';
   constructor(private fileService: FileService, private router: Router, private route: ActivatedRoute, private location: Location) {
   }
 
   ngOnInit() {
     
+  }
+
+  chooseFile() {
+    $('.browse').click();
+  }
+
+  upload($event) {
+    debugger;
+    var files = $event.srcElement.files;
+    this.fileService.upload(files);
   }
 }
