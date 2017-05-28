@@ -1,26 +1,26 @@
 <div class="row">
     <table id="files_table" class="table table-striped table-hover table-responsiv">
-      <thead class="thead-inverse">
-        <tr scope="row">
-          <th class="select_all_checkbox"><input type="checkbox"></th>
-          <th>Nom</th>
-          <th>Taille</th>
-          <th colspan="3">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr scope="row" *ngFor="let file of files">
-          <td class="checkbox"><input type="checkbox"></td>
-          <td class="filename"><i class="fa fa-2x" [ngClass]="file.currentClasses" aria-hidden="true" (click)="go(file)"></i>
-            <h6>{{file.name}}</h6>
-          </td>
-          <td class="filesize">{{file.size}} octet{{file.size === 1 ? '' : 's'}}</td>
-          <td class="filesize"><i title="Télécharger" (click)="download(file)" class="action fa fa-2x fa-download" aria-hidden="true"></i></td>
-          <td class="filesize"><i title="Renommer" (click)="rename(file)" class="action fa fa-2x fa-pencil" aria-hidden="true"></i></td>
-          <td class="filesize"><i title="Supprimer" (click)="delete(file)" class="action fa fa-2x fa-trash" aria-hidden="true"></i></td>
-        </tr>
-      </tbody>
-      <!--<tfoot>
+        <thead class="thead-inverse">
+            <tr scope="row">
+                <th class="select_all_checkbox"><input type="checkbox"></th>
+                <th>Nom</th>
+                <th>Taille</th>
+                <th colspan="3">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr scope="row" *ngFor="let file of files">
+                <td class="checkbox"><input type="checkbox"></td>
+                <td class="filename"><i class="fa fa-2x" [ngClass]="file.currentClasses" aria-hidden="true" (click)="go(file)"></i>
+                    <h6>{{file.name}}</h6>
+                </td>
+                <td class="filesize">{{file.size}} octet{{file.size === 1 ? '' : 's'}}</td>
+                <td class="filesize"><i title="Télécharger" (click)="download(file)" class="action fa fa-2x fa-download" aria-hidden="true"></i></td>
+                <td class="filesize"><i title="Renommer" (click)="rename(file)" class="action fa fa-2x fa-pencil" aria-hidden="true"></i></td>
+                <td class="filesize"><i title="Supprimer" (click)="delete(file)" class="action fa fa-2x fa-trash" aria-hidden="true"></i></td>
+            </tr>
+        </tbody>
+        <!--<tfoot>
                 <tr>
                     <td colspan="5">
                         <nav aria-label="Page navigation example">
@@ -46,4 +46,4 @@
                 </tr>
             </tfoot>-->
     </table>
-  </div>
+</div>

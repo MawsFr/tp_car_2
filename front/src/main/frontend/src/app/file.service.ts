@@ -12,6 +12,7 @@ export class FileService {
   private LIST_FILE_URL = '/api/files/list/';
   private DOWNLOAD_FILE_URL = '/api/files/download/';
   private UPLOAD_FILE_URL = '/api/files/upload/';
+  private DELETE_FILE_URL = '/api/files/delete/';
   @Output() onFileUploadFinish: EventEmitter<MyFile> = new EventEmitter<any>();
 
   currentPath = '';
@@ -32,8 +33,7 @@ export class FileService {
   download(path: string, filename: string) {
     return this.http.get(this.DOWNLOAD_FILE_URL + path, { responseType: ResponseContentType.Blob }).toPromise()
       .then(response => {
-        debugger;
-        var data = new Blob([response.blob()]);
+        const data = new Blob([response.blob()]);
         FileSaver.saveAs(data, filename);
       });
   }
@@ -44,18 +44,22 @@ export class FileService {
   }
 
   upload(files: File[]) {
-    debugger;
     this.uploader.options.url = this.UPLOAD_FILE_URL + this.currentPath;
     this.uploader.addToQueue(files);
     this.uploader.uploadAll();
     this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
-      debugger;
       if (status === 200) {
-        let file = JSON.parse(response) as MyFile;
-        let newFile = new MyFile(file.name, file.size, file.isDirectory, file.path);
+        const file = JSON.parse(response) as MyFile;
+        const newFile = new MyFile(file.name, file.size, file.isDirectory, file.path);
         this.onFileUploadFinish.emit(newFile);
       }
     };
+  }
+
+  delete(path: string) {
+    return this.http.delete(this.DELETE_FILE_URL + path)
+      .toPromise()
+      .catch(error => this.handleError);
   }
 
 }
