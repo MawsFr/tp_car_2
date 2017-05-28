@@ -34,7 +34,6 @@ export class FilesBrowserComponent implements OnInit {
   }
 
   ngOnInit() {
-    
   }
 
   chooseFile() {
@@ -42,8 +41,7 @@ export class FilesBrowserComponent implements OnInit {
   }
 
   upload($event) {
-    debugger;
-    var files = $event.srcElement.files;
+    const files = $event.srcElement.files;
     this.fileService.upload(files);
   }
 }

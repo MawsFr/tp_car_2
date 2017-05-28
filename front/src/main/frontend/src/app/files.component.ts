@@ -30,12 +30,12 @@ export class FilesComponent implements OnInit {
   }
 
   parseUrl() {
-    let parentRoot: ActivatedRoute = this.router.routerState.root.firstChild;
-    if (parentRoot.snapshot.url.map(p => p.path).join('/') == 'files') {
-      let path: string = '';
+    const parentRoot: ActivatedRoute = this.router.routerState.root.firstChild;
+    if (parentRoot.snapshot.url.map(p => p.path).join('/') === 'files') {
+      let path = '';
 
       // Child route is optional, in case the user has browsed to just "/browse"
-      let childRoute: ActivatedRoute = parentRoot.firstChild;
+      const childRoute: ActivatedRoute = parentRoot.firstChild;
       if (childRoute && childRoute.snapshot) {
         path = childRoute.snapshot.url.map(p => p.path).join('/');
         this.fileService.currentPath = path;
@@ -51,20 +51,24 @@ export class FilesComponent implements OnInit {
   }
 
   go(directory: MyFile) {
-    debugger;
     if (directory.isDirectory) {
       this.router.navigate(['/files/' + directory.path]);
     }
   }
 
   download(file: MyFile) {
-    debugger;
     this.fileService.download(file.path, file.name);
   }
 
   addFile(file: MyFile) {
     this.files.push(file);
     this.files.sort();
+  }
+
+  delete(file: MyFile) {
+    this.fileService.delete(file.path).then(e => {
+      this.files.splice(this.files.indexOf(file), 1);
+    });
   }
 
 }

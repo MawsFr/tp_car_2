@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ public class FileSystemResource {
 	public static final String LIST_PATH = "/api/files/list/";
 	private static final String DOWNLOAD_PATH = "/api/files/download/";
 	private static final String UPLOAD_PATH = "/api/files/upload/";
+	private static final String DELETE_PATH = "/api/files/delete/";
 	private static final Logger log = Logger.getLogger(FileSystemResource.class.getName());
 
 	@Autowired
@@ -52,10 +54,15 @@ public class FileSystemResource {
 
 	}
 
-	// @DeleteMapping
-	// public void deleteFile() {
-	// // TODO : To implement
-	// }
+	 @DeleteMapping(value = "/delete/**", headers = "Accept=*/*")
+	 public void deleteFile(final HttpServletRequest request) {
+		 final String path = request.getRequestURI().replaceFirst(DELETE_PATH, "");
+		 try {
+			manager.delete(path);
+		} catch (final Exception e) {
+			log.error("Delete error", e);		}
+
+	 }
 	//
 	// @PostMapping
 	// public void createDirectory() {
@@ -73,27 +80,27 @@ public class FileSystemResource {
 	// }
 	//
 	@GetMapping(value = "/download/**", headers = "Accept=*/*")
-	public void downloadFile(HttpServletRequest request, HttpServletResponse response) {
+	public void downloadFile(final HttpServletRequest request, final HttpServletResponse response) {
 		final String path = request.getRequestURI().replaceFirst(DOWNLOAD_PATH, "");
 		log.info("Trying to download : " + path);
 		try {
 			manager.download(path, response.getOutputStream());
 			response.flushBuffer();
 			log.info("Download done !");
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			log.error("Download error", e);
 		}
 	}
 
 	@PostMapping("/upload/**")
-	public FileInfos handleFileUpload(final HttpServletRequest request, @RequestParam("file") MultipartFile file,
-			RedirectAttributes redirectAttributes) {
+	public FileInfos handleFileUpload(final HttpServletRequest request, @RequestParam("file") final MultipartFile file,
+			final RedirectAttributes redirectAttributes) {
 		final String path = request.getRequestURI().replaceFirst(UPLOAD_PATH, "");
 		log.info("Trying to upload" + file.getOriginalFilename());
 		try {
 			return manager.getFileInfos(manager.upload(file, path));
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			log.error("Upload error", e);
 		}
 

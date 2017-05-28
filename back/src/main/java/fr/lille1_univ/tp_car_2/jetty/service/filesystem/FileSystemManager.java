@@ -38,11 +38,11 @@ public class FileSystemManager {
 		}		
 	}
 
-	public String getRelativePath(File file) {
+	public String getRelativePath(final File file) {
 		return root.toURI().relativize(file.toURI()).getPath();
 	}
 
-	public void download(final String path, OutputStream out) throws IOException {
+	public void download(final String path, final OutputStream out) throws IOException {
 		final File file = new File(ROOT_PATH + '/' + path);
 		if (file.exists() && file.canRead() && file.isFile()) {
 			final InputStream is = new FileInputStream(file);
@@ -53,7 +53,7 @@ public class FileSystemManager {
 		}
 	}
 
-	public File upload(MultipartFile file, String path) throws IOException {
+	public File upload(final MultipartFile file, final String path) throws IOException {
 		if (!file.isEmpty()) {
 			final File newFile = new File(ROOT_PATH + '/' + path + '/' + file.getOriginalFilename());
 			final FileOutputStream os = new FileOutputStream(newFile);
@@ -67,12 +67,19 @@ public class FileSystemManager {
 		return null;
 	}
 
-	public FileInfos getFileInfos(File file) {
+	public FileInfos getFileInfos(final File file) {
 		final FileInfos info = new FileInfos();
 		info.setName(file.getName());
 		info.setSize(file.length());
 		info.setIsDirectory(file.isDirectory());
 		info.setPath(getRelativePath(file));
 		return info;
+	}
+
+	public void delete(final String path) throws Exception {
+		final File file = new  File(ROOT_PATH + '/' + path);
+		if(file.exists() && file.canWrite() && !file.delete()) {
+				throw new Exception("Could not delete the file or directory " + path);
+		}
 	}
 }
