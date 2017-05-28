@@ -100,6 +100,7 @@ public class FileSystemResource {
 	@PostMapping(value = "/createdir/**", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public FileInfos createDirectory(final HttpServletRequest request, @RequestBody FileInfos info) throws Exception {
 		final String path = request.getRequestURI().replaceFirst(CREATE_DIR_PATH, "") + '/' + info.getName();
+		log.info("Trying to create directory " + path);
 		try {
 			final FileInfos infos = manager.getFileInfos(manager.createDirectory(path)); 
 			return infos;

@@ -1,11 +1,20 @@
 import { Injectable, Output, EventEmitter } from '@angular/core';
 import { MyFile } from './files-browser.component';
 import * as FileSaver from 'file-saver'
-
+declare var $: any;
 import { Headers, Http, ResponseContentType, RequestOptions } from '@angular/http';
 import { FileUploader } from 'ng2-file-upload/ng2-file-upload';
 import 'rxjs/add/operator/toPromise';
 
+
+export class ModalConfig {
+  title: string;
+  text: string;
+  name: string;
+  file: MyFile;
+  callback: any;
+  fileService: FileService;
+}
 
 @Injectable()
 export class FileService {
@@ -14,10 +23,13 @@ export class FileService {
   private UPLOAD_FILE_URL = '/api/files/upload/';
   private DELETE_FILE_URL = '/api/files/delete/';
   private CREATE_DIR_URL = '/api/files/createdir/';
+  private MODAL_ID = '#edit-name';
   @Output() onFileUploadFinish: EventEmitter<MyFile> = new EventEmitter<any>();
   @Output() onDirectoryCreated: EventEmitter<MyFile> = new EventEmitter<any>();
 
   currentPath = '';
+  modalConfig: ModalConfig;
+
 
   public uploader: FileUploader = new FileUploader({ url: this.UPLOAD_FILE_URL });
   constructor(private http: Http) { }
@@ -59,15 +71,19 @@ export class FileService {
   }
 
   createDirectory(name: string) {
+    name = name || this.modalConfig.name;
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
     return this.http.post(this.CREATE_DIR_URL + this.currentPath, { name }, options)
       .toPromise()
       .then(response => {
         const file = response.json() as MyFile;
-        const newFile = new MyFile(file.name, file.size, file.isDirectory, file.path);
-        this.onDirectoryCreated.emit(newFile);
-
+        this.modalConfig.file.name = file.name;
+        this.modalConfig.file.size = file.size;
+        this.modalConfig.file.isDirectory= file.isDirectory;
+        this.modalConfig.file.path = file.path;
+        this.modalConfig.file.setCurrentClasses();
+        this.onDirectoryCreated.emit(this.modalConfig.file);
       })
       .catch(error => this.handleError);
   }
@@ -78,4 +94,9 @@ export class FileService {
       .catch(error => this.handleError);
   }
 
+  openModal(config: ModalConfig) {
+    debugger;
+    this.modalConfig = config;
+    $(this.MODAL_ID).modal('show');
+  }
 }

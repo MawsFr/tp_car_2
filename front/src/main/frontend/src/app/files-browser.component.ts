@@ -41,7 +41,20 @@ export class FilesBrowserComponent implements OnInit {
   }
 
   newDir() {
-    this.fileService.createDirectory('Nouveaudossier');
+    var file = new MyFile('', 0, true, this.fileService.currentPath);
+    var modalConfig = {
+      title: "Créer un nouveau dossier",
+      text: "Entrez le nom",
+      file: file,
+      name: '',
+      fileService: this.fileService,
+      callback: function() {
+        debugger;
+        this.fileService.createDirectory();
+      }
+    }
+    this.fileService.openModal(modalConfig);
+    
   }
 
   upload($event) {

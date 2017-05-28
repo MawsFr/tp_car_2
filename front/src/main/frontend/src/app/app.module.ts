@@ -11,13 +11,15 @@ import { FilesBrowserComponent } from './files-browser.component';
 
 import { FileService } from './file.service';
 import { FilesComponent } from "app/files.component";
+import { FileNameEditModalComponent } from "app/file-name-edit-modal.component";
 
 
 @NgModule({
   declarations: [
     AppComponent,
     FilesBrowserComponent,
-    FilesComponent
+    FilesComponent,
+    FileNameEditModalComponent
   ],
   imports: [
     BrowserModule,
@@ -43,6 +45,8 @@ import { FilesComponent } from "app/files.component";
     ])
   ],
   providers: [FileService],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [FileNameEditModalComponent]
+
 })
 export class AppModule {}
