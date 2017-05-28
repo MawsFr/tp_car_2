@@ -5,7 +5,7 @@
   <div class="row">
     <div id="toolbar" class="btn-toolbar" role="toolbar">
       <div class="btn-group" role="group">
-        <button type="button" class="btn btn-outline-primary"><i class="fa fa-plus"></i></button>
+        <button type="button" class="btn btn-outline-primary" (click)="newDir()"><i class="fa fa-plus"></i></button>
         <button id="choose_file" type="button" class="btn btn-outline-primary" (click)="chooseFile()"><i class="fa fa-upload"></i></button>
         <input id="choose_file_input" type="file" name="film" id="file" class="browse" (change)="upload($event)">
       </div>

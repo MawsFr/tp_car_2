@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +31,7 @@ public class FileSystemResource {
 	private static final String UPLOAD_PATH = "/api/files/upload/";
 	private static final String DELETE_PATH = "/api/files/delete/";
 	private static final Logger log = Logger.getLogger(FileSystemResource.class.getName());
+	private static final String CREATE_DIR_PATH = "/api/files/createdir/";
 
 	@Autowired
 	protected FileSystemManager manager;
@@ -45,42 +47,30 @@ public class FileSystemResource {
 		final File[] files = manager.listFiles(path);
 		// TODO : Create a Mapper
 		final List<FileInfos> infos = new ArrayList<>();
-		for (final File file : files) {
-			// TODO : add group etc ...
-			infos.add(manager.getFileInfos(file));
+		if (files != null) {
+			for (final File file : files) {
+				// TODO : add group etc ...
+				infos.add(manager.getFileInfos(file));
+			}
 		}
 		log.info(infos);
 		return infos;
+	}
+
+	@DeleteMapping(value = "/delete/**", headers = "Accept=*/*")
+	public void deleteFile(final HttpServletRequest request) throws Exception {
+		final String path = request.getRequestURI().replaceFirst(DELETE_PATH, "");
+		try {
+			manager.delete(path);
+		} catch (final Exception e) {
+			log.error("Delete error", e);
+			throw e;
+		}
 
 	}
 
-	 @DeleteMapping(value = "/delete/**", headers = "Accept=*/*")
-	 public void deleteFile(final HttpServletRequest request) {
-		 final String path = request.getRequestURI().replaceFirst(DELETE_PATH, "");
-		 try {
-			manager.delete(path);
-		} catch (final Exception e) {
-			log.error("Delete error", e);		}
-
-	 }
-	//
-	// @PostMapping
-	// public void createDirectory() {
-	//
-	// }
-	//
-	// @DeleteMapping
-	// public void deleteDirectory() {
-	// // TODO : To implement
-	// }
-	//
-	// @PostMapping
-	// public void uploadFile(final MultipartFile file) {
-	//
-	// }
-	//
 	@GetMapping(value = "/download/**", headers = "Accept=*/*")
-	public void downloadFile(final HttpServletRequest request, final HttpServletResponse response) {
+	public void downloadFile(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
 		final String path = request.getRequestURI().replaceFirst(DOWNLOAD_PATH, "");
 		log.info("Trying to download : " + path);
 		try {
@@ -89,12 +79,13 @@ public class FileSystemResource {
 			log.info("Download done !");
 		} catch (final IOException e) {
 			log.error("Download error", e);
+			throw e;
 		}
 	}
 
 	@PostMapping("/upload/**")
 	public FileInfos handleFileUpload(final HttpServletRequest request, @RequestParam("file") final MultipartFile file,
-			final RedirectAttributes redirectAttributes) {
+			final RedirectAttributes redirectAttributes) throws IOException {
 		final String path = request.getRequestURI().replaceFirst(UPLOAD_PATH, "");
 		log.info("Trying to upload" + file.getOriginalFilename());
 		try {
@@ -102,9 +93,20 @@ public class FileSystemResource {
 
 		} catch (final IOException e) {
 			log.error("Upload error", e);
+			throw e;
 		}
+	}
 
-		return null;
+	@PostMapping(value = "/createdir/**", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public FileInfos createDirectory(final HttpServletRequest request, @RequestBody FileInfos info) throws Exception {
+		final String path = request.getRequestURI().replaceFirst(CREATE_DIR_PATH, "") + '/' + info.getName();
+		try {
+			final FileInfos infos = manager.getFileInfos(manager.createDirectory(path)); 
+			return infos;
+		} catch (final Exception e) {
+			log.error("Delete error", e);
+			throw e;
+		}
 	}
 
 

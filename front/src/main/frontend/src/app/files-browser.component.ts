@@ -40,6 +40,10 @@ export class FilesBrowserComponent implements OnInit {
     $('.browse').click();
   }
 
+  newDir() {
+    this.fileService.createDirectory('Nouveaudossier');
+  }
+
   upload($event) {
     const files = $event.srcElement.files;
     this.fileService.upload(files);

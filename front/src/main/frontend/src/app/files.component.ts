@@ -26,7 +26,11 @@ export class FilesComponent implements OnInit {
       });
     this.fileService.onFileUploadFinish.subscribe(file => {
       this.addFile(file);
-    })
+    });
+
+    this.fileService.onDirectoryCreated.subscribe(file => {
+      this.addFile(file);
+    });
   }
 
   parseUrl() {
@@ -62,7 +66,7 @@ export class FilesComponent implements OnInit {
 
   addFile(file: MyFile) {
     this.files.push(file);
-    this.files.sort();
+    // this.files.sort();
   }
 
   delete(file: MyFile) {

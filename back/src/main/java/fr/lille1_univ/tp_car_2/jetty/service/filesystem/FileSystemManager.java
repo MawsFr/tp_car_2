@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -81,5 +82,14 @@ public class FileSystemManager {
 		if(file.exists() && file.canWrite() && !file.delete()) {
 				throw new Exception("Could not delete the file or directory " + path);
 		}
+	}
+
+	public File createDirectory(String path) throws Exception {
+		final File file = new File(ROOT_PATH + '/' + URLDecoder.decode(path, "UTF-8"));
+		if (path.isEmpty() || file.exists() || !file.mkdir()) {
+			throw new Exception("Could not create the directory " + file.getPath());
+		}
+		log.info("Directory successfully created");
+		return file;
 	}
 }
