@@ -89,7 +89,7 @@ public class FileSystemResource {
 	public FileInfos handleFileUpload(final HttpServletRequest request, @RequestParam("file") MultipartFile file,
 			RedirectAttributes redirectAttributes) {
 		final String path = request.getRequestURI().replaceFirst(UPLOAD_PATH, "");
-		log.error("Trying to upload" + file.getOriginalFilename());
+		log.info("Trying to upload" + file.getOriginalFilename());
 		try {
 			return manager.getFileInfos(manager.upload(file, path));
 
