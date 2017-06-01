@@ -24,7 +24,7 @@ public class FileSystemManager {
 		try {
 			final File dir = new File(ROOT_PATH + '/' + directory);
 			return dir.listFiles();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new MyException("Erreur lors du listing des fichiers. Le chemin n'existe pas.");
 		}
 	}
@@ -33,7 +33,7 @@ public class FileSystemManager {
 		try {
 			final File file = new File(name);
 			return file.createNewFile();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new MyException("Impossible de créer le fichier");
 		}
 	}
@@ -44,7 +44,7 @@ public class FileSystemManager {
 			log.info("Création du dossier " + ROOT_PATH);
 			try {
 				root.mkdir();
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				throw new MyException("Impossible de créer le fichier root, vous n'avez peut etre pas les droits.");
 			}
 		}
@@ -69,7 +69,7 @@ public class FileSystemManager {
 			final InputStream is = new FileInputStream(file);
 			IOUtils.copy(is, out);
 			is.close();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new MyException("Impossible de télécharger le fichier");
 		}
 	}
@@ -77,42 +77,33 @@ public class FileSystemManager {
 	public File upload(final MultipartFile file, final String path) throws MyException {
 		if (!file.isEmpty()) {
 			final File newFile = new File(ROOT_PATH + '/' + path + '/' + file.getOriginalFilename());
+			if (newFile.exists()) {
+				throw new MyException("Un fichier du même nom existe déjà, veuillez d'abord le supprimer");
+			} else {
+				try {
+					newFile.createNewFile();
+				} catch (final IOException e) {
+					throw new MyException("Impossible d'envoyer le fichier");
+				}
+			}
 			FileOutputStream os;
 			try {
 				os = new FileOutputStream(newFile);
-			} catch (FileNotFoundException e1) {
+			} catch (final FileNotFoundException e1) {
 				throw new MyException("Erreur lors de l'ouverture du flux");
 			}
 			try {
-				if (newFile.exists()) {
-					throw new MyException("Un fichier du même nom existe déjà, veuillez d'abord le supprimer");
-				} else {
-					try {
-						newFile.createNewFile();
-					} catch (IOException e) {
-						throw new MyException("Impossible d'envoyer le fichier");
-					}
-				}
-				try {
-					IOUtils.copy(file.getInputStream(), os);
-					try {
-						os.close();
-					} catch (Exception e) {
-						throw new MyException("Erreur lors de la fermeture du flux");
-					}
-				} catch (Exception e) {
-					throw new MyException("Impossible d'envoyer le fichier");
-				}
-				return newFile;
-			} catch (Exception e) {
-				throw new MyException("Erreur lors de l'envoi du fichier");
+				IOUtils.copy(file.getInputStream(), os);
+			} catch (final Exception e) {
+				throw new MyException("Impossible d'envoyer le fichier");
 			} finally {
 				try {
 					os.close();
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					throw new MyException("Erreur lors de la fermeture du flux");
 				}
 			}
+			return newFile;
 		}
 		return null;
 	}
@@ -139,7 +130,7 @@ public class FileSystemManager {
 		}
 	}
 
-	public File createDirectory(String path) throws MyException {
+	public File createDirectory(final String path) throws MyException {
 		final File file = new File(ROOT_PATH + '/' + path);
 		if (file.exists()) {
 			throw new MyException("un dossier du même nom existe déjà !");
@@ -151,7 +142,7 @@ public class FileSystemManager {
 		return file;
 	}
 
-	public void renameDirectory(String path, String name, String newName) throws MyException {
+	public void renameDirectory(final String path, final String name, final String newName) throws MyException {
 		final File file = new File(ROOT_PATH + '/' + path + '/' + name);
 		final File dest = new File(ROOT_PATH + '/' + path + '/' + newName);
 
