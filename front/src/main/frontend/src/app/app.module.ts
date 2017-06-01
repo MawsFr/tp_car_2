@@ -12,6 +12,8 @@ import { FilesBrowserComponent } from './files-browser.component';
 import { FileService } from './file.service';
 import { FilesComponent } from "app/files.component";
 import { FileNameEditModalComponent } from "app/file-name-edit-modal.component";
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
+import { SimpleNotificationsModule } from 'angular2-notifications';
 
 
 @NgModule({
@@ -25,6 +27,8 @@ import { FileNameEditModalComponent } from "app/file-name-edit-modal.component";
     BrowserModule,
     FormsModule,
     HttpModule,
+    BrowserAnimationsModule,
+    SimpleNotificationsModule.forRoot(),
     NgbModule.forRoot(),
     RouterModule.forRoot([
       {
@@ -49,4 +53,4 @@ import { FileNameEditModalComponent } from "app/file-name-edit-modal.component";
   entryComponents: [FileNameEditModalComponent]
 
 })
-export class AppModule {}
+export class AppModule { }

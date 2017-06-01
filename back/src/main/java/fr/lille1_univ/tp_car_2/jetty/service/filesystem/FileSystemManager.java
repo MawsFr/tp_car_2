@@ -15,54 +15,104 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class FileSystemManager {
-	
+
 	public static final String ROOT_PATH = "root";
 	private static final Logger log = Logger.getLogger(FileSystemManager.class.getName());
 	protected File root;
 
-	public File[] listFiles(final String directory) {
-		final File dir = new File(ROOT_PATH + '/' + directory);
-		return dir.listFiles();
+	public File[] listFiles(final String directory) throws MyException {
+		try {
+			final File dir = new File(ROOT_PATH + '/' + directory);
+			return dir.listFiles();
+		} catch (Exception e) {
+			throw new MyException("Erreur lors du listing des fichiers. Le chemin n'existe pas.");
+		}
 	}
-	
-	public Boolean createFile(final String name) throws IOException {
-		final File file = new File(name);
-		return file.createNewFile();
+
+	public Boolean createFile(final String name) throws IOException, MyException {
+		try {
+			final File file = new File(name);
+			return file.createNewFile();
+		} catch (Exception e) {
+			throw new MyException("Impossible de créer le fichier");
+		}
 	}
-	
-	public void init() {
+
+	public void init() throws MyException {
 		root = new File(ROOT_PATH);
-		if(!root.exists()) {
+		if (!root.exists()) {
 			log.info("Création du dossier " + ROOT_PATH);
-			root.mkdir();
-		}		
+			try {
+				root.mkdir();
+			} catch (Exception e) {
+				throw new MyException("Impossible de créer le fichier root, vous n'avez peut etre pas les droits.");
+			}
+		}
 	}
 
 	public String getRelativePath(final File file) {
 		return root.toURI().relativize(file.toURI()).getPath();
 	}
 
-	public void download(final String path, final OutputStream out) throws IOException {
+	public void download(final String path, final OutputStream out) throws MyException {
 		final File file = new File(ROOT_PATH + '/' + path);
-		if (file.exists() && file.canRead() && file.isFile()) {
+		if (!file.exists()) {
+			throw new MyException("Le fichier demandé n'existe pas !");
+		}
+		if (!file.canRead()) {
+			throw new MyException("Vous n'avez pas le droit d'accéder à ce fichier");
+		}
+		if (!file.isFile()) {
+			throw new MyException("Vous ne pouvez pas télécharger de dossier");
+		}
+		try {
 			final InputStream is = new FileInputStream(file);
 			IOUtils.copy(is, out);
 			is.close();
-		} else {
-			throw new FileNotFoundException("The path relates to a directory");
+		} catch (Exception e) {
+			throw new MyException("Impossible de télécharger le fichier");
 		}
 	}
 
-	public File upload(final MultipartFile file, final String path) throws IOException {
+	public File upload(final MultipartFile file, final String path) throws MyException {
 		if (!file.isEmpty()) {
 			final File newFile = new File(ROOT_PATH + '/' + path + '/' + file.getOriginalFilename());
-			final FileOutputStream os = new FileOutputStream(newFile);
-			if (!newFile.exists()) {
-				newFile.createNewFile();
+			FileOutputStream os;
+			try {
+				os = new FileOutputStream(newFile);
+			} catch (FileNotFoundException e1) {
+				throw new MyException("Erreur lors de l'ouverture du flux");
 			}
-			IOUtils.copy(file.getInputStream(), os);
-			os.close();
-			return newFile;
+			try {
+				if (newFile.exists()) {
+					throw new MyException("Un fichier du même nom existe déjà, veuillez d'abord le supprimer");
+				} else {
+					try {
+						newFile.createNewFile();
+					} catch (IOException e) {
+						throw new MyException("Impossible d'envoyer le fichier");
+					}
+				}
+				try {
+					IOUtils.copy(file.getInputStream(), os);
+					try {
+						os.close();
+					} catch (Exception e) {
+						throw new MyException("Erreur lors de la fermeture du flux");
+					}
+				} catch (Exception e) {
+					throw new MyException("Impossible d'envoyer le fichier");
+				}
+				return newFile;
+			} catch (Exception e) {
+				throw new MyException("Erreur lors de l'envoi du fichier");
+			} finally {
+				try {
+					os.close();
+				} catch (Exception e) {
+					throw new MyException("Erreur lors de la fermeture du flux");
+				}
+			}
 		}
 		return null;
 	}
@@ -76,26 +126,49 @@ public class FileSystemManager {
 		return info;
 	}
 
-	public void delete(final String path) throws Exception {
-		final File file = new  File(ROOT_PATH + '/' + path);
-		if(file.exists() && file.canWrite() && !file.delete()) {
-				throw new Exception("Could not delete the file or directory " + path);
+	public void delete(final String path) throws MyException {
+		final File file = new File(ROOT_PATH + '/' + path);
+		if (!file.exists()) {
+			throw new MyException("Le fichier ou dossier demandé n'existe pas !");
+		}
+		if (!file.canWrite()) {
+			throw new MyException("Vous n'avez pas le droit de supprimer ce fichier ou dossier");
+		}
+		if (!file.delete()) {
+			throw new MyException("Vous ne pouvez pas supprimer ce fichier ou dossier");
 		}
 	}
 
-	public File createDirectory(String path) throws Exception {
+	public File createDirectory(String path) throws MyException {
 		final File file = new File(ROOT_PATH + '/' + path);
-		if (path.isEmpty() || file.exists() || !file.mkdir()) {
-			throw new Exception("Could not create the directory " + file.getPath());
+		if (file.exists()) {
+			throw new MyException("un dossier du même nom existe déjà !");
+		}
+		if (!file.mkdir()) {
+			throw new MyException("La création du dossier a échoué");
 		}
 		log.info("Directory successfully created");
 		return file;
 	}
 
-	public void renameDirectory(String path, String name, String newName) throws Exception {
-		final File file = new File(ROOT_PATH + '/' + path + name);
-		if (path.isEmpty() || file.exists() || !file.renameTo(new File(ROOT_PATH + '/' + newName))) {
-			throw new Exception("Could not rename the directory " + file.getPath());
+	public void renameDirectory(String path, String name, String newName) throws MyException {
+		final File file = new File(ROOT_PATH + '/' + path + '/' + name);
+		final File dest = new File(ROOT_PATH + '/' + path + '/' + newName);
+
+		if (name.isEmpty()) {
+			throw new MyException("Le nom du fichier ne peut pas être vide");
+		}
+		if (newName.isEmpty()) {
+			throw new MyException("Le nouveau nom ne peut pas être vide");
+		}
+		if (!file.exists()) {
+			throw new MyException("Le fichier ou dossier n'existe plus !");
+		}
+		if (dest.exists()) {
+			throw new MyException("Un fichier ou dossier du même nom existe déjà");
+		}
+		if (!file.renameTo(dest)) {
+			throw new MyException("Le renommage du fichier ou dossier a échoué");
 		}
 		log.info("Directory successfully renamed");
 	}
