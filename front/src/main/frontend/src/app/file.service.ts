@@ -67,6 +67,7 @@ export class FileService {
   }
 
   upload(files: File[]) {
+    this.notifService.warn('Upload en cours', 'Le fichier ' + files[0].name + ' est en cours d\'upload');
     this.uploader.options.url = this.UPLOAD_FILE_URL + this.currentPath;
     this.uploader.addToQueue(files);
     this.uploader.uploadAll();
@@ -74,6 +75,7 @@ export class FileService {
       if (status === 200) {
         const file = JSON.parse(response) as MyFile;
         const newFile = new MyFile(file.name, file.size, file.isDirectory, file.path);
+        this.notifService.success('Upload réussi', 'Le fichier ' + file.name + ' a bien été uploadé');
         this.onFileUploadFinish.emit(newFile);
       }
     };
@@ -97,6 +99,7 @@ export class FileService {
         this.modalConfig.file.isDirectory = file.isDirectory;
         this.modalConfig.file.path = file.path;
         this.modalConfig.file.setCurrentClasses();
+        this.notifService.success('Dossier créé', 'Le dossier ' + file.name + ' a été créé');
         this.onDirectoryCreated.emit(this.modalConfig.file);
       })
       .catch(error => this.handleError(error));
@@ -105,6 +108,9 @@ export class FileService {
   delete(path: string) {
     return this.http.delete(this.DELETE_FILE_URL + path)
       .toPromise()
+      .then( () => {
+        this.notifService.success('Fichier / Dossier supprimé', 'Le fichier / dossier ' + path + ' a été supprimé');
+      })
       .catch(error => this.handleError(error));
   }
 
@@ -129,6 +135,7 @@ export class FileService {
       .toPromise()
       .then(response => {
         this.modalConfig.file.name = name;
+        this.notifService.success('Fichier renommé', 'Le fichier ' + name + ' a bien été uploadé');
         // this.onDirectoryRename.emit(this.modalConfig.file);
       })
       .catch(error => this.handleError(error));

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -125,7 +126,13 @@ public class FileSystemManager {
 		if (!file.canWrite()) {
 			throw new MyException("Vous n'avez pas le droit de supprimer ce fichier ou dossier");
 		}
-		if (!file.delete()) {
+		try {
+			if (file.isFile()) {
+				file.delete();
+			} else {
+				FileUtils.deleteDirectory(file);
+			}
+		} catch(Exception e) {
 			throw new MyException("Vous ne pouvez pas supprimer ce fichier ou dossier");
 		}
 	}
