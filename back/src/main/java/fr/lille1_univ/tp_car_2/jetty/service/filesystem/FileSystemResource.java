@@ -13,11 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -110,13 +107,6 @@ public class FileSystemResource {
 		} catch (UnsupportedEncodingException e) {
 			throw new MyException("Impossible de décoder le chemin du fichier ou dossier", e);
 		}
-	}
-
-	@ExceptionHandler(MyException.class)
-	public ResponseEntity<ErrorMessage> handleException(MyException e) {
-		log.error("ERROR", e);
-		ErrorMessage message = new ErrorMessage(HttpStatus.PRECONDITION_FAILED.value(), e.getMessage());
-		return new ResponseEntity<>(message, HttpStatus.OK);
 	}
 
 

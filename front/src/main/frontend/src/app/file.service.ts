@@ -60,7 +60,7 @@ export class FileService {
       .catch(error => this.handleError(error));
   }
 
-  private handleError(error: any): Promise<any> {
+  private handleError(error: Response | any): Promise<any> {
     debugger;
     this.notifService.error(error.message || error);
     return Promise.reject(error.message || error);

@@ -11,8 +11,11 @@ import { HttpModule } from '@angular/http';
 export class AppComponent {
   title = 'File Navigator';
   public options = {
-    position: ["bottom", "left"],
+    position: ["bottom", "right"],
     timeOut: 5000,
+    showProgressBar: true,
+    pauseOnHover: false,
+    clickToClose: false,
     lastOnBottom: true
   }
 }
