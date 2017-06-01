@@ -5,6 +5,8 @@ declare var $: any;
 import { Headers, Http, ResponseContentType, RequestOptions } from '@angular/http';
 import { FileUploader } from 'ng2-file-upload/ng2-file-upload';
 import 'rxjs/add/operator/toPromise';
+import { SimpleNotificationsModule, NotificationsService } from 'angular2-notifications';
+import { ParsedResponseHeaders, FileItem } from "ng2-file-upload";
 
 
 export class ModalConfig {
@@ -29,15 +31,15 @@ export class FileService {
   @Output() onDirectoryCreated: EventEmitter<MyFile> = new EventEmitter<any>();
   @Output() onDirectoryRename: EventEmitter<MyFile> = new EventEmitter<any>();
 
-  currentPath :string = '';
-  currentPathSplit : string[] =  [];
+  currentPath: string = '';
+  currentPathSplit: string[] = [];
 
   modalConfig: ModalConfig = new ModalConfig();
 
 
   public uploader: FileUploader = new FileUploader({ url: this.UPLOAD_FILE_URL });
-  constructor(private http: Http) {
-   }
+  constructor(private http: Http, private notifService: NotificationsService) {
+  }
 
   listFiles(): Promise<MyFile[]> {
     return this.http.get(this.LIST_FILE_URL + this.currentPath)
@@ -45,7 +47,7 @@ export class FileService {
       .then(response => (response.json() as MyFile[]).map(function ({ name, size, isDirectory, path }) {
         return new MyFile(name, size, isDirectory, path);
       }))
-      .catch(error => this.handleError);
+      .catch(error => this.handleError(error));
 
   }
 
@@ -54,11 +56,14 @@ export class FileService {
       .then(response => {
         const data = new Blob([response.blob()]);
         FileSaver.saveAs(data, filename);
-      });
+      })
+      .catch(error => this.handleError(error));
   }
 
   private handleError(error: any): Promise<any> {
-    console.error('Il y\'a eu une erreur', error);
+    debugger;
+    debugger;
+    this.notifService.error(error.message || error);
     return Promise.reject(error.message || error);
   }
 
@@ -73,6 +78,10 @@ export class FileService {
         this.onFileUploadFinish.emit(newFile);
       }
     };
+
+    this.uploader.onErrorItem = (item: FileItem, response: string, status: number, headers: ParsedResponseHeaders) => {
+      this.handleError(response);
+    };
   }
 
   createDirectory(name: string) {
@@ -85,18 +94,18 @@ export class FileService {
         const file = response.json() as MyFile;
         this.modalConfig.file.name = file.name;
         this.modalConfig.file.size = file.size;
-        this.modalConfig.file.isDirectory= file.isDirectory;
+        this.modalConfig.file.isDirectory = file.isDirectory;
         this.modalConfig.file.path = file.path;
         this.modalConfig.file.setCurrentClasses();
         this.onDirectoryCreated.emit(this.modalConfig.file);
       })
-      .catch(error => this.handleError);
+      .catch(error => this.handleError(error));
   }
 
   delete(path: string) {
     return this.http.delete(this.DELETE_FILE_URL + path)
       .toPromise()
-      .catch(error => this.handleError);
+      .catch(error => this.handleError(error));
   }
 
   openModal(config: ModalConfig) {
@@ -114,13 +123,14 @@ export class FileService {
     debugger;
     let name = this.modalConfig.name;
     let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
-    return this.http.put(this.RENAME_URL + this.currentPath, { newName: name, name: this.modalConfig.file.name }, options)
+    let data = {'newName': name, 'name': this.modalConfig.file.name};
+    let options = new RequestOptions({ headers: headers});
+    return this.http.post(this.RENAME_URL + this.currentPath, data, options)
       .toPromise()
       .then(response => {
         this.modalConfig.file.name = name;
         // this.onDirectoryRename.emit(this.modalConfig.file);
       })
-      .catch(error => this.handleError);
+      .catch(error => this.handleError(error));
   }
 }

@@ -77,7 +77,6 @@ export class FilesComponent implements OnInit {
   }
 
   rename(file: MyFile) {
-    debugger;
     var modalConfig = {
       title: "Renommez le fichier ou le dossier",
       text: "Entrez le nom",
