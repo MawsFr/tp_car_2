@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URLDecoder;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -85,7 +84,7 @@ public class FileSystemManager {
 	}
 
 	public File createDirectory(String path) throws Exception {
-		final File file = new File(ROOT_PATH + '/' + URLDecoder.decode(path, "UTF-8"));
+		final File file = new File(ROOT_PATH + '/' + path);
 		if (path.isEmpty() || file.exists() || !file.mkdir()) {
 			throw new Exception("Could not create the directory " + file.getPath());
 		}

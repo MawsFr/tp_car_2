@@ -61,4 +61,8 @@ export class FilesBrowserComponent implements OnInit {
     const files = $event.srcElement.files;
     this.fileService.upload(files);
   }
+
+  splitCurrentPath() {
+    return this.fileService.currentPath.split('/');
+  }
 }

@@ -2,6 +2,8 @@ package fr.lille1_univ.tp_car_2.jetty.service.filesystem;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RestController
 @RequestMapping(value = "/files", produces=MediaType.APPLICATION_JSON_VALUE)
@@ -61,7 +62,7 @@ public class FileSystemResource {
 	public void deleteFile(final HttpServletRequest request) throws Exception {
 		final String path = request.getRequestURI().replaceFirst(DELETE_PATH, "");
 		try {
-			manager.delete(path);
+			manager.delete(decodePath(path));
 		} catch (final Exception e) {
 			log.error("Delete error", e);
 			throw e;
@@ -74,7 +75,7 @@ public class FileSystemResource {
 		final String path = request.getRequestURI().replaceFirst(DOWNLOAD_PATH, "");
 		log.info("Trying to download : " + path);
 		try {
-			manager.download(path, response.getOutputStream());
+			manager.download(decodePath(path), response.getOutputStream());
 			response.flushBuffer();
 			log.info("Download done !");
 		} catch (final IOException e) {
@@ -84,12 +85,12 @@ public class FileSystemResource {
 	}
 
 	@PostMapping("/upload/**")
-	public FileInfos handleFileUpload(final HttpServletRequest request, @RequestParam("file") final MultipartFile file,
-			final RedirectAttributes redirectAttributes) throws IOException {
+	public FileInfos handleFileUpload(final HttpServletRequest request, @RequestParam("file") final MultipartFile file)
+			throws IOException {
 		final String path = request.getRequestURI().replaceFirst(UPLOAD_PATH, "");
 		log.info("Trying to upload" + file.getOriginalFilename());
 		try {
-			return manager.getFileInfos(manager.upload(file, path));
+			return manager.getFileInfos(manager.upload(file, decodePath(path)));
 
 		} catch (final IOException e) {
 			log.error("Upload error", e);
@@ -102,12 +103,16 @@ public class FileSystemResource {
 		final String path = request.getRequestURI().replaceFirst(CREATE_DIR_PATH, "") + '/' + info.getName();
 		log.info("Trying to create directory " + path);
 		try {
-			final FileInfos infos = manager.getFileInfos(manager.createDirectory(path)); 
+			final FileInfos infos = manager.getFileInfos(manager.createDirectory(decodePath(path)));
 			return infos;
 		} catch (final Exception e) {
 			log.error("Delete error", e);
 			throw e;
 		}
+	}
+
+	public String decodePath(String path) throws UnsupportedEncodingException {
+		return URLDecoder.decode(path, "UTF-8");
 	}
 
 

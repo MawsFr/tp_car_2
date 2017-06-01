@@ -1,6 +1,7 @@
 <nav class="breadcrumb row">
     <a class="breadcrumb-item" href="#">Home</a>
     <span class="breadcrumb-item active">{{currentPath}}</span>
+    <a *ngFor="let item of list" class="breadcrumb-item" href="#">{{item.name}}</a>
   </nav>
   <div class="row">
     <div id="toolbar" class="btn-toolbar" role="toolbar">
