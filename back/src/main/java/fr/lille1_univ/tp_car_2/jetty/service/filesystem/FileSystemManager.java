@@ -91,4 +91,12 @@ public class FileSystemManager {
 		log.info("Directory successfully created");
 		return file;
 	}
+
+	public void renameDirectory(String path, String name, String newName) throws Exception {
+		final File file = new File(ROOT_PATH + '/' + path + name);
+		if (path.isEmpty() || file.exists() || !file.renameTo(new File(ROOT_PATH + '/' + newName))) {
+			throw new Exception("Could not rename the directory " + file.getPath());
+		}
+		log.info("Directory successfully renamed");
+	}
 }

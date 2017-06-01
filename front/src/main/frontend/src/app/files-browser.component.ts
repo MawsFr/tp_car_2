@@ -65,4 +65,5 @@ export class FilesBrowserComponent implements OnInit {
   splitCurrentPath() {
     return this.fileService.currentPath.split('/');
   }
+  
 }

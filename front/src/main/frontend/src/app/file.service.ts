@@ -23,19 +23,24 @@ export class FileService {
   private UPLOAD_FILE_URL = '/api/files/upload/';
   private DELETE_FILE_URL = '/api/files/delete/';
   private CREATE_DIR_URL = '/api/files/createdir/';
+  private RENAME_URL = '/api/files/rename/';
   private MODAL_ID = '#edit-name';
   @Output() onFileUploadFinish: EventEmitter<MyFile> = new EventEmitter<any>();
   @Output() onDirectoryCreated: EventEmitter<MyFile> = new EventEmitter<any>();
+  @Output() onDirectoryRename: EventEmitter<MyFile> = new EventEmitter<any>();
 
-  currentPath = '';
-  modalConfig: ModalConfig;
+  currentPath :string = '';
+  currentPathSplit : string[] =  [];
+
+  modalConfig: ModalConfig = new ModalConfig();
 
 
   public uploader: FileUploader = new FileUploader({ url: this.UPLOAD_FILE_URL });
-  constructor(private http: Http) { }
+  constructor(private http: Http) {
+   }
 
-  listFiles(path: string): Promise<MyFile[]> {
-    return this.http.get(this.LIST_FILE_URL + path)
+  listFiles(): Promise<MyFile[]> {
+    return this.http.get(this.LIST_FILE_URL + this.currentPath)
       .toPromise()
       .then(response => (response.json() as MyFile[]).map(function ({ name, size, isDirectory, path }) {
         return new MyFile(name, size, isDirectory, path);
@@ -95,8 +100,27 @@ export class FileService {
   }
 
   openModal(config: ModalConfig) {
-    debugger;
     this.modalConfig = config;
     $(this.MODAL_ID).modal('show');
+  }
+
+  getPathByIndex(index: number) {
+    index++;
+    let temp = this.currentPathSplit.slice(0, index);
+    return temp.join('/');
+  }
+
+  renameDirectory() {
+    debugger;
+    let name = this.modalConfig.name;
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+    return this.http.put(this.RENAME_URL + this.currentPath, { newName: name, name: this.modalConfig.file.name }, options)
+      .toPromise()
+      .then(response => {
+        this.modalConfig.file.name = name;
+        // this.onDirectoryRename.emit(this.modalConfig.file);
+      })
+      .catch(error => this.handleError);
   }
 }

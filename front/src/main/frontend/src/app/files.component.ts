@@ -43,15 +43,16 @@ export class FilesComponent implements OnInit {
       if (childRoute && childRoute.snapshot) {
         path = childRoute.snapshot.url.map(p => p.path).join('/');
         this.fileService.currentPath = path;
+        this.fileService.currentPathSplit = path.split('/');
         console.log('New browser path is ', path);
       }
 
-      this.getFiles(path);
+      this.getFiles();
     }
   }
 
-  getFiles(path: string) {
-    this.fileService.listFiles(path).then(files => this.files = files);
+  getFiles() {
+    this.fileService.listFiles().then(files => this.files = files);
   }
 
   go(directory: MyFile) {
@@ -73,6 +74,21 @@ export class FilesComponent implements OnInit {
     this.fileService.delete(file.path).then(e => {
       this.files.splice(this.files.indexOf(file), 1);
     });
+  }
+
+  rename(file: MyFile) {
+    debugger;
+    var modalConfig = {
+      title: "Renommez le fichier ou le dossier",
+      text: "Entrez le nom",
+      file: file,
+      name: '',
+      fileService: this.fileService,
+      callback: function() {
+        this.fileService.renameDirectory();
+      }
+    }
+    this.fileService.openModal(modalConfig);
   }
 
 }
