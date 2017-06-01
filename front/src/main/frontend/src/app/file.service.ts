@@ -6,7 +6,7 @@ import { Headers, Http, ResponseContentType, RequestOptions } from '@angular/htt
 import { FileUploader } from 'ng2-file-upload/ng2-file-upload';
 import 'rxjs/add/operator/toPromise';
 import { SimpleNotificationsModule, NotificationsService } from 'angular2-notifications';
-import { ParsedResponseHeaders, FileItem } from "ng2-file-upload";
+import { ParsedResponseHeaders, FileItem, FileLikeObject } from "ng2-file-upload";
 
 
 export class ModalConfig {
@@ -79,8 +79,9 @@ export class FileService {
     };
 
     this.uploader.onErrorItem = (item: FileItem, response: string, status: number, headers: ParsedResponseHeaders) => {
-      this.handleError(response);
+      this.handleError(JSON.parse(response));
     };
+
   }
 
   createDirectory(name: string) {

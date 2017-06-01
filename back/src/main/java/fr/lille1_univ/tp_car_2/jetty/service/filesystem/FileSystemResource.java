@@ -49,7 +49,7 @@ public class FileSystemResource {
 	@GetMapping("/list/**")
 	public List<FileInfos> listDirectory(final HttpServletRequest request) throws MyException {
 		final String path = request.getRequestURI().replaceFirst(LIST_PATH, "");
-		final File[] files = manager.listFiles(path);
+		final File[] files = manager.listFiles(decodePath(path));
 		final List<FileInfos> infos = new ArrayList<>();
 		if (files != null) {
 			for (final File file : files) {
@@ -74,9 +74,9 @@ public class FileSystemResource {
 		try {
 			manager.download(decodePath(path), response.getOutputStream());
 			response.flushBuffer();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new MyException("Erreur, lors de la manipulation des flux", e);
-		} catch (MyException e) {
+		} catch (final MyException e) {
 			throw e;
 		}
 	}
@@ -90,7 +90,7 @@ public class FileSystemResource {
 	}
 
 	@PostMapping(value = "/createdir/**", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public FileInfos createDirectory(final HttpServletRequest request, @RequestBody FileInfos info) throws Exception {
+	public FileInfos createDirectory(final HttpServletRequest request, @RequestBody final FileInfos info) throws Exception {
 		final String path = request.getRequestURI().replaceFirst(CREATE_DIR_PATH, "") + '/' + info.getName();
 		log.info("Trying to create directory " + path);
 		final FileInfos infos = manager.getFileInfos(manager.createDirectory(decodePath(path)));
@@ -98,25 +98,25 @@ public class FileSystemResource {
 	}
 
 	@PostMapping(value = "/rename/**", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void renameDirectory(final HttpServletRequest request, @RequestBody RenameInfos infos) throws Exception {
+	public void renameDirectory(final HttpServletRequest request, @RequestBody final RenameInfos infos) throws Exception {
 		final String path = request.getRequestURI().replaceFirst(RENAME_PATH, "");
 		log.info("Trying to rename directory " + path);
 		manager.renameDirectory(decodePath(path), decodePath(infos.getName()), decodePath(infos.getNewName()));
 	}
 
-	public String decodePath(String path) throws MyException {
+	public String decodePath(final String path) throws MyException {
 		try {
 			return URLDecoder.decode(path, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException e) {
 			throw new MyException("Impossible de décoder le chemin du fichier ou dossier", e);
 		}
 	}
 
 	@ExceptionHandler(MyException.class)
-	public ResponseEntity<ErrorMessage> handleException(MyException e) {
+	public ResponseEntity<ErrorMessage> handleException(final MyException e) {
 		log.error("ERROR", e);
-		ErrorMessage message = new ErrorMessage(HttpStatus.PRECONDITION_FAILED.value(), e.getMessage());
-		return new ResponseEntity<>(message, HttpStatus.OK);
+		final ErrorMessage message = new ErrorMessage(HttpStatus.PRECONDITION_FAILED.value(), e.getMessage());
+		return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
 	}
 
 
