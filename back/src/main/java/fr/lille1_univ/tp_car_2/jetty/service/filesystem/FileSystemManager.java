@@ -132,7 +132,7 @@ public class FileSystemManager {
 			} else {
 				FileUtils.deleteDirectory(file);
 			}
-		} catch(Exception e) {
+		} catch(final Exception e) {
 			throw new MyException("Vous ne pouvez pas supprimer ce fichier ou dossier");
 		}
 	}
@@ -149,7 +149,7 @@ public class FileSystemManager {
 		return file;
 	}
 
-	public void renameDirectory(final String path, final String name, final String newName) throws MyException {
+	public File renameDirectory(final String path, final String name, final String newName) throws MyException {
 		final File file = new File(ROOT_PATH + '/' + path + '/' + name);
 		final File dest = new File(ROOT_PATH + '/' + path + '/' + newName);
 
@@ -169,5 +169,7 @@ public class FileSystemManager {
 			throw new MyException("Le renommage du fichier ou dossier a échoué");
 		}
 		log.info("Directory successfully renamed");
+		
+		return dest;
 	}
 }

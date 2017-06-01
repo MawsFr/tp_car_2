@@ -134,7 +134,12 @@ export class FileService {
     return this.http.post(this.RENAME_URL + this.currentPath, data, options)
       .toPromise()
       .then(response => {
-        this.modalConfig.file.name = name;
+        debugger;
+        let infos = response.json() as MyFile;
+        this.modalConfig.file.name = infos.name;
+        this.modalConfig.file.path = infos.path;
+        this.modalConfig.file.size = infos.size;
+        this.modalConfig.file.isDirectory = infos.isDirectory;
         this.notifService.success('Fichier renommé', 'Le fichier ' + name + ' a bien été uploadé');
         // this.onDirectoryRename.emit(this.modalConfig.file);
       })

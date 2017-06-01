@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping(value = "/files", produces=MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/files", produces=MediaType.APPLICATION_JSON_VALUE)
 public class FileSystemResource {
 
 	public static final String LIST_PATH = "/api/files/list/";
@@ -98,10 +98,10 @@ public class FileSystemResource {
 	}
 
 	@PostMapping(value = "/rename/**", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void renameDirectory(final HttpServletRequest request, @RequestBody final RenameInfos infos) throws Exception {
+	public FileInfos renameDirectory(final HttpServletRequest request, @RequestBody final RenameInfos infos) throws Exception {
 		final String path = request.getRequestURI().replaceFirst(RENAME_PATH, "");
 		log.info("Trying to rename directory " + path);
-		manager.renameDirectory(decodePath(path), decodePath(infos.getName()), decodePath(infos.getNewName()));
+		return manager.getFileInfos(manager.renameDirectory(decodePath(path), decodePath(infos.getName()), decodePath(infos.getNewName())));
 	}
 
 	public String decodePath(final String path) throws MyException {
